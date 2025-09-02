@@ -1,68 +1,38 @@
-// Mobile nav
-const navToggle = document.querySelector('.nav-toggle');
-const nav = document.getElementById('primary-nav');
-if (navToggle && nav) {
-  navToggle.addEventListener('click', () => {
-    const open = nav.classList.toggle('open');
-    navToggle.setAttribute('aria-expanded', String(open));
-  });
-  nav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
-    nav.classList.remove('open');
-    navToggle.setAttribute('aria-expanded', 'false');
-  }));
-}
-
-// Smooth scroll
-document.querySelectorAll('a[href^="#"]').forEach(link => {
-  link.addEventListener('click', e => {
-    const id = link.getAttribute('href');
-    const target = document.querySelector(id);
-    if (target) {
-      e.preventDefault();
-      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      history.pushState(null, '', id);
-    }
-  });
-});
-
-// Back to top
-const toTop = document.getElementById('to-top');
-function onScroll() { window.scrollY > 600 ? toTop.classList.add('show') : toTop.classList.remove('show'); }
-window.addEventListener('scroll', onScroll);
-toTop?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-
 // Footer year
-document.getElementById('year').textContent = new Date().getFullYear();
+document.getElementById('year')?.append(new Date().getFullYear());
 
-// Fake contact + newsletter submits (replace with your backend)
-const statusEl = document.getElementById('form-status');
+// Fake contact submit
 document.getElementById('contact-form')?.addEventListener('submit', async (e) => {
   e.preventDefault();
-  statusEl.textContent = 'Sending…';
+  const status = document.getElementById('form-status');
+  status.textContent = 'Sending…';
   await new Promise(r => setTimeout(r, 700));
-  statusEl.textContent = 'Thanks! We’ll be in touch.';
+  status.textContent = 'Thanks! We’ll be in touch.';
   e.target.reset();
 });
 
-const nlStatus = document.getElementById('nl-status');
-document.getElementById('newsletter')?.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  nlStatus.textContent = 'Subscribing…';
-  await new Promise(r => setTimeout(r, 600));
-  nlStatus.textContent = 'Subscribed! 🎉';
-  e.target.reset();
-});
+// Initialize Slick on your WooCommerce-style list so your CSS takes over
+function initProductSlider() {
+  const $ = window.jQuery;
+  if (!$ || !$.fn || !$.fn.slick) return;
 
-/* ---------- Replace placeholders ----------
-1) Hero background:
-   .hero-bg style="background-image:url('assets/hero-1920x1080.jpg')"
+  const $ul = $('.wcpscwc-product-slider .products');
+  if (!$ul.length) return;
 
-2) Product tiles:
-   Each .media.ph uses background-image. Replace with your product photos.
+  $ul.on('init', () => $ul.css({ display: 'block' })); // reveal only after slick
+  $ul.slick({
+    slidesToShow: 4,
+    slidesToScroll: 1,
+    infinite: true,
+    arrows: true,
+    dots: true,
+    responsive: [
+      { breakpoint: 1200, settings: { slidesToShow: 3 } },
+      { breakpoint: 900,  settings: { slidesToShow: 2 } },
+      { breakpoint: 620,  settings: { slidesToShow: 1 } }
+    ]
+  });
+}
 
-3) Video:
-   Use <video> with MP4, or replace the .media.ph with an <iframe> inside .embed.
-
-4) Logos:
-   Swap assets/logo-placeholder.svg and assets/logo-footer.svg.
------------------------------------------------- */
+if (document.readyState !== 'loading') initProductSlider();
+else document.addEventListener('DOMContentLoaded', initProductSlider);
